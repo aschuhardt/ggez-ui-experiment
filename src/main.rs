@@ -106,7 +106,7 @@ impl event::EventHandler for MainState {
         if keycode == Keycode::F3 {
             self.debug = !self.debug;
         }
-        
+
         self.current_substate.key_down_event(
             keycode,
             keymod,

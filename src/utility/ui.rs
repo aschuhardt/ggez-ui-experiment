@@ -137,7 +137,7 @@ impl Label {
 
         if let Some(ref mut txt) = self.render_text {
             txt.set_filter(graphics::FilterMode::Nearest);
-        }        
+        }
     }
 }
 

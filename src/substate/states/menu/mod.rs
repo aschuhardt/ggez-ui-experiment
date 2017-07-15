@@ -33,43 +33,31 @@ impl MenuState {
 
         self.ui_context.add_element(
             "lbl_title",
-            Box::new(ui::Label::new(String::from("Main Menu")))
+            Box::new(ui::Label::new(String::from("Main Menu"))),
         );
 
         self.ui_context.add_element(
             "btn_play",
-            Box::new(
-                ui::Button::new(
-                    String::from("Play"),
-                    |state: &mut StateInfo| {
-                        state.transition("mapgen");
-                    }
-                )
-            )
+            Box::new(ui::Button::new(
+                String::from("Play"),
+                |state: &mut StateInfo| { state.transition("mapgen"); },
+            )),
         );
 
         self.ui_context.add_element(
             "btn_about",
-            Box::new(
-                ui::Button::new(
-                    String::from("About"),
-                    |state: &mut StateInfo| {
-                        state.transition("about");
-                    }
-                )
-            )
+            Box::new(ui::Button::new(
+                String::from("About"),
+                |state: &mut StateInfo| { state.transition("about"); },
+            )),
         );
 
         self.ui_context.add_element(
             "btn_quit",
-            Box::new(
-                ui::Button::new(
-                    String::from("Quit"),
-                    |state: &mut StateInfo| {
-                        state.quit();
-                    }
-                )
-            )
+            Box::new(ui::Button::new(
+                String::from("Quit"),
+                |state: &mut StateInfo| { state.quit(); },
+            )),
         );
 
         self.has_initialized_ui = true;
@@ -88,31 +76,44 @@ impl event::EventHandler for MenuState {
         //check to see if ui needs to be updated after having been initialized
         if self.info.is_ui_dirty() && self.has_initialized_ui {
             let screen = graphics::get_screen_coordinates(ctx);
-            
-            self.ui_context.modify_element("lbl_title", |lbl: &mut ui::Label| {
-                let height = lbl.get_height();
-                lbl.set_position(screen.w / 2.0, TITLE_TOP_PAD + height / 2.0);
-            });
 
-            self.ui_context.modify_element("btn_play", |btn: &mut ui::Button| {
-                let height = btn.get_height();
-                btn.set_position(screen.w / 2.0, PLAY_BTN_TOP_PAD);
-                btn.set_width(BTN_WIDTH);
-            });
+            self.ui_context.modify_element(
+                "lbl_title",
+                |lbl: &mut ui::Label| {
+                    let height = lbl.get_height();
+                    lbl.set_position(screen.w / 2.0, TITLE_TOP_PAD + height / 2.0);
+                },
+            );
 
-            self.ui_context.modify_element("btn_about", |btn: &mut ui::Button| {
-                let height = btn.get_height();
-                btn.set_position(screen.w / 2.0, 
-                                 height + BTN_SPACING + PLAY_BTN_TOP_PAD);
-                btn.set_width(BTN_WIDTH);
-            });
+            self.ui_context.modify_element(
+                "btn_play",
+                |btn: &mut ui::Button| {
+                    let height = btn.get_height();
+                    btn.set_position(screen.w / 2.0, PLAY_BTN_TOP_PAD);
+                    btn.set_width(BTN_WIDTH);
+                },
+            );
 
-            self.ui_context.modify_element("btn_quit", |btn: &mut ui::Button| {
-                let height = btn.get_height();
-                btn.set_position(screen.w / 2.0, 
-                                 2.0 * (height + BTN_SPACING) + PLAY_BTN_TOP_PAD);
-                btn.set_width(BTN_WIDTH);
-            });
+            self.ui_context.modify_element(
+                "btn_about",
+                |btn: &mut ui::Button| {
+                    let height = btn.get_height();
+                    btn.set_position(screen.w / 2.0, height + BTN_SPACING + PLAY_BTN_TOP_PAD);
+                    btn.set_width(BTN_WIDTH);
+                },
+            );
+
+            self.ui_context.modify_element(
+                "btn_quit",
+                |btn: &mut ui::Button| {
+                    let height = btn.get_height();
+                    btn.set_position(
+                        screen.w / 2.0,
+                        2.0 * (height + BTN_SPACING) + PLAY_BTN_TOP_PAD,
+                    );
+                    btn.set_width(BTN_WIDTH);
+                },
+            );
         }
 
         Ok(())
