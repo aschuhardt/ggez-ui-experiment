@@ -11,6 +11,7 @@ use ggez::graphics;
 use substate::states::{StateInfo, StoredValue};
 use substate::{Status, SubState};
 use utility::ui;
+use self::map::Map;
 
 const SEED_ELEMENT_PADDING_TOP: f32 = 8.0;
 const SEED_ELEMENT_PADDING_HORIZ: f32 = 10.0;
@@ -19,6 +20,7 @@ pub struct MapGenState {
     info: StateInfo,
     has_initialized_ui: bool,
     ui_context: ui::UIContext,
+    map: Map,
 }
 
 impl MapGenState {
@@ -27,6 +29,7 @@ impl MapGenState {
             info: StateInfo::new(),
             has_initialized_ui: false,
             ui_context: ui::UIContext::new(),
+            map: Map::new(16, 16, 32),
         }
     }
 
@@ -55,7 +58,19 @@ impl MapGenState {
             "map_seed",
             StoredValue::Integral { value: rand::thread_rng().gen::<i32>() },
         );
+        state.set_value(
+            "gen_map",
+            StoredValue::Boolean { value: true },
+        );
         state.refresh_ui();
+    }
+
+    fn should_regenerate_map(&mut self) -> bool {
+        if let Ok(&StoredValue::Boolean { value: flag }) = self.info.get_value("gen_map") {
+            return flag.clone();
+        } else {
+            return false;
+        }
     }
 }
 
@@ -74,15 +89,26 @@ impl event::EventHandler for MapGenState {
 
             let mut seed_label_width: f32 = 0.0;
             let mut seed_text = String::new();
+            let mut map_seed = 0i32;
 
             if let Ok(&StoredValue::Integral { value: seed }) = self.info.get_value("map_seed") {
-                seed_text = format!("Seed: {}", seed);
+                map_seed = seed.clone();
+            }
+            
+            if self.should_regenerate_map() {
+                self.map.set_seed(map_seed);
+                self.map.generate_regions(|_| {}); //todo: setup callback
+                self.info.set_value(
+                    "gen_map",
+                    StoredValue::Boolean { value: false },
+                );
+                println!("Set map seed to {}", map_seed);
             }
 
             self.ui_context.modify_element(
                 "lbl_mapSeed",
                 |lbl: &mut ui::Label| {
-                    lbl.set_text(seed_text.clone(), ctx);
+                    lbl.set_text(format!("Seed: {}", map_seed), ctx);
                     seed_label_width = lbl.get_width();
                     let height = lbl.get_height();
                     lbl.set_position(
