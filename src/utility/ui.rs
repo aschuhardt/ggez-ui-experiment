@@ -124,23 +124,27 @@ impl Label {
         self.height
     }
 
-    pub fn set_text(&mut self, text: String) {
+    pub fn set_text(&mut self, text: String, ctx: &mut Context) {
         self.text_contents = text;
-        self.render_text = None;
+        self.rebuild_render_text(ctx);
+    }
+
+    fn rebuild_render_text(&mut self, ctx: &mut Context) {
+        let txt = Text::new(ctx, &self.text_contents, self.font).unwrap();
+        self.width = txt.width() as f32;
+        self.height = txt.height() as f32;
+        self.render_text = Some(txt);
+
+        if let Some(ref mut txt) = self.render_text {
+            txt.set_filter(graphics::FilterMode::Nearest);
+        }        
     }
 }
 
 impl UIElement for Label {
     fn draw(&mut self, ctx: &mut Context) {
         if self.render_text.is_none() {
-            let txt = Text::new(ctx, &self.text_contents, self.font).unwrap();
-            self.width = txt.width() as f32;
-            self.height = txt.height() as f32;
-            self.render_text = Some(txt);
-
-            if let Some(ref mut txt) = self.render_text {
-                txt.set_filter(graphics::FilterMode::Nearest);
-            }
+            self.rebuild_render_text(ctx);
         }
 
         if let Some(ref txt) = self.render_text {

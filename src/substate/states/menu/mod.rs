@@ -4,7 +4,7 @@ use ggez::{GameResult, Context};
 use ggez::event;
 use ggez::graphics;
 
-use substate::states::{StateInfo, StoredValue};
+use substate::states::StateInfo;
 use substate::{Status, SubState};
 use utility::ui;
 

@@ -1,7 +1,9 @@
-// Use this as a template for implementing sub-states
+mod map;
 
 use std::time::Duration;
 
+use rand;
+use rand::Rng;
 use ggez::{GameResult, Context};
 use ggez::event;
 use ggez::graphics;
@@ -9,6 +11,9 @@ use ggez::graphics;
 use substate::states::{StateInfo, StoredValue};
 use substate::{Status, SubState};
 use utility::ui;
+
+const SEED_ELEMENT_PADDING_TOP: f32 = 8.0;
+const SEED_ELEMENT_PADDING_HORIZ: f32 = 10.0;
 
 pub struct MapGenState {
     info: StateInfo,
@@ -28,9 +33,33 @@ impl MapGenState {
     fn init_ui(&mut self, ctx: &mut Context) {
         graphics::set_background_color(ctx, graphics::BLACK);
 
-        // add ui elements here
+        self.ui_context.add_element(
+            "btn_newSeed",
+            Box::new(
+                ui::Button::new(
+                    String::from("Generate New"),
+                    MapGenState::set_random_seed
+                )
+            )
+        );
+
+        self.ui_context.add_element(
+            "lbl_mapSeed",
+            Box::new(
+                ui::Label::new(String::from("..."))
+            )
+        );
 
         self.has_initialized_ui = true;
+        MapGenState::set_random_seed(&mut self.info);
+    }
+
+    fn set_random_seed(state: &mut StateInfo) {
+        state.set_value(
+            "map_seed",
+            StoredValue::Integral { value: rand::thread_rng().gen::<i32>() }
+        );
+        state.refresh_ui();
     }
 }
 
@@ -45,9 +74,29 @@ impl event::EventHandler for MapGenState {
 
         //check to see if ui needs to be updated after having been initialized
         if self.info.is_ui_dirty() && self.has_initialized_ui {
-            
-            // use self.ui_context.modify_element to update control information here
+            let screen = graphics::get_screen_coordinates(ctx);
 
+            let mut seed_label_width: f32 = 0.0;
+            let mut seed_text = String::new();
+
+            if let Ok(&StoredValue::Integral { value: seed }) = self.info.get_value("map_seed") {
+                seed_text = format!("Seed: {}", seed);
+            }
+
+            self.ui_context.modify_element("lbl_mapSeed", |lbl: &mut ui::Label| {
+                lbl.set_text(seed_text.clone(), ctx);
+                seed_label_width = lbl.get_width();
+                let height = lbl.get_height();
+                lbl.set_position(SEED_ELEMENT_PADDING_HORIZ + seed_label_width / 2.0, 
+                                 SEED_ELEMENT_PADDING_TOP + height / 2.0);
+            });
+
+            self.ui_context.modify_element("btn_newSeed", |btn: &mut ui::Button| {
+                let width = btn.get_width();
+                let height = btn.get_height();
+                btn.set_position(2.0 * SEED_ELEMENT_PADDING_HORIZ + seed_label_width + width / 2.0,
+                                 SEED_ELEMENT_PADDING_TOP + height / 2.0)
+            });
         }
 
         Ok(())
