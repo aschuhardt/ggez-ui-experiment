@@ -6,3 +6,5 @@
 /.vscode/
 *.lock
 Cargo.lock
+/msvc/
+/gnu-mingw/
