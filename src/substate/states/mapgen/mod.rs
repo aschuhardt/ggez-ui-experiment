@@ -58,10 +58,7 @@ impl MapGenState {
             "map_seed",
             StoredValue::Integral { value: rand::thread_rng().gen::<i32>() },
         );
-        state.set_value(
-            "gen_map",
-            StoredValue::Boolean { value: true },
-        );
+        state.set_value("gen_map", StoredValue::Boolean { value: true });
         state.refresh_ui();
     }
 
@@ -94,7 +91,7 @@ impl event::EventHandler for MapGenState {
             if let Ok(&StoredValue::Integral { value: seed }) = self.info.get_value("map_seed") {
                 map_seed = seed.clone();
             }
-            
+
             if self.should_regenerate_map() {
                 self.map.set_seed(map_seed);
                 self.map.generate_regions(|_| {}); //todo: setup callback
@@ -102,7 +99,6 @@ impl event::EventHandler for MapGenState {
                     "gen_map",
                     StoredValue::Boolean { value: false },
                 );
-                println!("Set map seed to {}", map_seed);
             }
 
             self.ui_context.modify_element(

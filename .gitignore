@@ -4,3 +4,5 @@
 *.lib
 *.a
 /.vscode/
+*.lock
+Cargo.lock

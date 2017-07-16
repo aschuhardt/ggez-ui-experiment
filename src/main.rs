@@ -4,6 +4,11 @@ extern crate lazy_static;
 extern crate mopa;
 extern crate ggez;
 extern crate rand;
+extern crate uuid;
+extern crate serde;
+#[macro_use]
+extern crate serde_derive;
+extern crate bincode;
 
 mod substate;
 mod utility;
@@ -158,6 +163,7 @@ pub fn main() {
         window_height: 768,
         window_width: 1024,
         vsync: true,
+        resizable: true,
     };
 
     // load window context
