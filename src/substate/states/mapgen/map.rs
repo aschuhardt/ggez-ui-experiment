@@ -1,9 +1,8 @@
 use std::io::{BufReader, Write, Read};
-use std::fs::{self, DirBuilder, File};
+use std::fs::{DirBuilder, File};
 
 use uuid::Uuid;
 use bincode::{serialize, deserialize, Infinite};
-use serde::{Serialize, Deserialize};
 
 const REGION_DEPTH: u32 = 16;
 
@@ -26,7 +25,7 @@ pub enum BiomeType {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
-struct Region {
+pub struct Region {
     id: Uuid,
     width: u32,
     height: u32,
@@ -88,7 +87,7 @@ impl Map {
 
     pub fn save(&mut self) {
         let path = format!("maps/{}/", self.id);
-        let mut dir = DirBuilder::new()
+        let _ = DirBuilder::new()
             .recursive(true)
             .create(path.clone())
             .unwrap();
@@ -103,21 +102,25 @@ impl Map {
         let fname = format!("{}{}.map", path, self.id);
         let mut file = File::create(fname).unwrap();
         let encoded = serialize(&self, Infinite).unwrap();
-        file.write_all(encoded.as_slice());
+        file.write_all(encoded.as_slice()).unwrap();
     }
 
     pub fn load(&mut self, id: String) {
         let path = format!("maps/{}/", id);
         let file = File::open(format!("{}{}.map", path.clone(), id)).unwrap();
         let mut buffer = Vec::<u8>::new();
-        let encoded = BufReader::new(file).read_to_end(&mut buffer).unwrap();
+        let _ = BufReader::new(file).read_to_end(&mut buffer).unwrap();
         *self = deserialize(&buffer).unwrap();
+    }
 
-        for mut c in self.regions.iter_mut() {
-            for mut r in c.iter_mut() {
-                r.load_tiles(path.clone());
-            }
+    pub fn load_region(&mut self, x: u32, y: u32) -> &mut Region {
+        if x < self.width && y < self.height {
+            let path = format!("maps/{}/", self.id);
+            let r = &mut self.regions[x as usize][y as usize];
+            r.load_tiles(path.clone());
+            return r;
         }
+        panic!("Region offset at ({},{}) is outside of map bounds!", x, y);
     }
 }
 
@@ -162,7 +165,7 @@ impl Region {
     pub fn load_tiles(&mut self, dir: String) {
         let file = File::open(format!("{}{}.region", dir, self.id)).unwrap();
         let mut buffer = Vec::<u8>::new();
-        let encoded = BufReader::new(file).read_to_end(&mut buffer).unwrap();
+        let _ = BufReader::new(file).read_to_end(&mut buffer).unwrap();
         self.tiles = deserialize(&buffer).unwrap();
     }
 
@@ -170,7 +173,7 @@ impl Region {
         let fname = format!("{}{}.region", dir, self.id);
         let mut file = File::create(fname).unwrap();
         let encoded = serialize(&self.tiles, Infinite).unwrap();
-        file.write_all(encoded.as_slice());
+        file.write_all(encoded.as_slice()).unwrap();
     }
 
     pub fn dispose_tiles(&mut self) {

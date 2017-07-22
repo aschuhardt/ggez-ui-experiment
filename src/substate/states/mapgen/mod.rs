@@ -1,4 +1,5 @@
 mod map;
+mod map_ui;
 
 use std::time::Duration;
 
@@ -85,7 +86,6 @@ impl event::EventHandler for MapGenState {
             let screen = graphics::get_screen_coordinates(ctx);
 
             let mut seed_label_width: f32 = 0.0;
-            let mut seed_text = String::new();
             let mut map_seed = 0i32;
 
             if let Ok(&StoredValue::Integral { value: seed }) = self.info.get_value("map_seed") {
