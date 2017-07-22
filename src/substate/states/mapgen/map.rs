@@ -35,8 +35,6 @@ pub struct Region {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TileType {
-    #[serde(skip_serializing)]
-    #[serde(skip_deserializing)]
     Air,
     Grass,
     Sand,
