@@ -35,6 +35,8 @@ pub struct Region {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TileType {
+    #[serde(skip_serializing)]
+    #[serde(skip_deserializing)]
     Air,
     Grass,
     Sand,
@@ -94,8 +96,7 @@ impl Map {
 
         for mut c in self.regions.iter_mut() {
             for mut r in c.iter_mut() {
-                r.save_tiles(path.clone());
-                r.dispose_tiles();
+                r.unload(path.clone());
             }
         }
 
@@ -169,7 +170,14 @@ impl Region {
         self.tiles = deserialize(&buffer).unwrap();
     }
 
-    pub fn save_tiles(&self, dir: String) {
+    pub fn unload(&mut self, dir: String) {
+        if self.tiles.len() > 0 {
+            self.save_tiles(dir);
+        }
+        self.dispose_tiles();
+    }
+
+    fn save_tiles(&self, dir: String) {
         let fname = format!("{}{}.region", dir, self.id);
         let mut file = File::create(fname).unwrap();
         let encoded = serialize(&self.tiles, Infinite).unwrap();
