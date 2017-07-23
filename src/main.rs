@@ -56,7 +56,7 @@ impl event::EventHandler for MainState {
             match status {
                 Status::Transition { id } => {
                     self.transition_state(id);
-                }
+                },
                 Status::Quit => {
                     ctx.quit().unwrap();
                 }
