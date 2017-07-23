@@ -2,10 +2,11 @@ use ggez::Context;
 use ggez::graphics::{self, Color, Rect, DrawMode};
 
 use utility::ui;
-use substate::states::StateInfo;
+use substate::states::{StateInfo, StoredValue};
 use substate::states::mapgen::Map;
-use substate::states::mapgen::map::BiomeType;
+use substate::states::mapgen::map::{self, BiomeType};
 
+pub const DESCRIPTION_KEY: &'static str = "map_desc";
 const REGION_OUTLINE_WIDTH: f32 = 3.0;
 
 pub struct MapUI {
@@ -15,6 +16,8 @@ pub struct MapUI {
     height: f32,
     biome_data: Vec<Vec<BiomeType>>,
     mouse_pos: (f32, f32),
+    description: String,
+    selection_pos: (f32, f32),
 }
 
 impl MapUI {
@@ -26,6 +29,8 @@ impl MapUI {
             height: 0.0,
             biome_data: Vec::<Vec<BiomeType>>::new(),
             mouse_pos: (0.0, 0.0),
+            description: String::new(),
+            selection_pos: (0.0, 0.0),
         }
     }
 
@@ -63,6 +68,7 @@ impl ui::UIElement for MapUI {
         let rect_width = self.width / data_width as f32;
         let rect_height = self.height / data_height as f32;
 
+        //first pass: draw region colors
         for x in 0..data_width {
             for y in 0..data_height {
                 let biome_color: Color = match self.biome_data[x][y] {
@@ -86,12 +92,39 @@ impl ui::UIElement for MapUI {
                         h: rect_height,
                     },
                 );
+            }
+        }
+
+        //second pass: draw markings
+        for x in 0..data_width {
+            for y in 0..data_height {
+                let rect_x = self.x + (x as f32 * rect_width);
+                let rect_y = self.y + (y as f32 * rect_height);
 
                 if self.mouse_pos.0 > rect_x - (rect_width / 2.0) 
                     && self.mouse_pos.0 < rect_x + (rect_width / 2.0)
                     && self.mouse_pos.1 > rect_y - (rect_height / 2.0) 
                     && self.mouse_pos.1 < rect_y + (rect_height / 2.0) {
                     graphics::set_color(ctx, graphics::BLACK);
+                    graphics::set_line_width(ctx, REGION_OUTLINE_WIDTH);
+                    graphics::rectangle(
+                        ctx,
+                        DrawMode::Line,
+                        Rect {
+                            x: rect_x,
+                            y: rect_y,
+                            w: rect_width,
+                            h: rect_height,
+                        },
+                    );
+                    self.description = format!("({}, {}): {}", x, y, map::get_biome_name(&self.biome_data[x][y]));
+                }
+
+                if self.selection_pos.0 > rect_x - (rect_width / 2.0) 
+                    && self.selection_pos.0 < rect_x + (rect_width / 2.0)
+                    && self.selection_pos.1 > rect_y - (rect_height / 2.0) 
+                    && self.selection_pos.1 < rect_y + (rect_height / 2.0) {
+                    graphics::set_color(ctx, Color::from((255, 0, 0)));
                     graphics::set_line_width(ctx, REGION_OUTLINE_WIDTH);
                     graphics::rectangle(
                         ctx,
@@ -113,6 +146,11 @@ impl ui::UIElement for MapUI {
     }
 
     fn click(&mut self, mouse_x: i32, mouse_y: i32, info: &mut StateInfo) {
-
+        self.selection_pos = (mouse_x as f32, mouse_y as f32);
+        info.set_value(
+            DESCRIPTION_KEY,
+            StoredValue::Textual { value: self.description.clone() },
+        );
+        info.refresh_ui();
     }
 }

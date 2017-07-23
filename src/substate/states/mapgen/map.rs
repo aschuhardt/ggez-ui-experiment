@@ -35,7 +35,6 @@ pub struct Region {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TileType {
-    #[serde(skip_serializing)]
     Air,
     Grass,
     Sand,
@@ -47,8 +46,16 @@ pub enum TileType {
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Tile {
     pub solid: bool,
-    #[serde(default = "TileType::Air")]
     pub tile_type: TileType,
+}
+
+pub fn get_biome_name(biome: &BiomeType) -> String {
+    match biome {
+        &BiomeType::Arid => String::from("Arid"),
+        &BiomeType::Grassland => String::from("Grassland"),
+        &BiomeType::Ocean => String::from("Oceanic"),
+        &BiomeType::Rocky => String::from("Rocky"),        
+    }
 }
 
 impl Map {
@@ -74,10 +81,16 @@ impl Map {
         let region_count = (self.width * self.height) as f32;
         let mut current_index = 0;
 
-        for _ in 0..self.width {
+        for x in 0..self.width {
             let mut column = Vec::<Region>::new();
-            for _ in 0..self.height {
-                column.push(Region::new(self.region_size, BiomeType::Arid));
+            for y in 0..self.height {
+                if x % 3 == 0 || y % 2 == 0 {
+                    column.push(Region::new(self.region_size, BiomeType::Arid));
+                } else if x % 4 == 0 {
+                    column.push(Region::new(self.region_size, BiomeType::Grassland));
+                } else {
+                    column.push(Region::new(self.region_size, BiomeType::Rocky));
+                }
 
                 current_index += 1;
                 let progress = ((current_index as f32 / region_count) as i32) * 100;

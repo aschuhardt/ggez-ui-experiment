@@ -6,6 +6,7 @@ pub enum StoredValue {
     FloatingPoint { value: f32 },
     Integral { value: i32 },
     Boolean { value: bool },
+    Textual { value: String },
 }
 
 pub struct StateInfo {
