@@ -146,11 +146,17 @@ impl ui::UIElement for MapUI {
     }
 
     fn click(&mut self, mouse_x: i32, mouse_y: i32, info: &mut StateInfo) {
-        self.selection_pos = (mouse_x as f32, mouse_y as f32);
-        info.set_value(
-            DESCRIPTION_KEY,
-            StoredValue::Textual { value: self.description.clone() },
-        );
-        info.refresh_ui();
+        let mx = mouse_x as f32;
+        let my = mouse_y as f32;
+
+        if mx > self.x && mx < self.x + self.width
+            && my > self.y && my < self.y + self.height {
+            self.selection_pos = (mx, my);
+            info.set_value(
+                DESCRIPTION_KEY,
+                StoredValue::Textual { value: self.description.clone() },
+            );
+            info.refresh_ui();
+        }
     }
 }
