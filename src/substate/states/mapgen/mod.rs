@@ -1,4 +1,4 @@
-mod map;
+pub mod map;
 mod map_ui;
 
 use std::time::Duration;
@@ -13,9 +13,11 @@ use substate::states::{StateInfo, StoredValue};
 use substate::{Status, SubState};
 use utility::ui;
 use self::map::Map;
+use self::map_ui::MapUI;
 
 const SEED_ELEMENT_PADDING_TOP: f32 = 8.0;
 const SEED_ELEMENT_PADDING_HORIZ: f32 = 10.0;
+const MAP_VIEW_TOP_PAD: f32 = 16.0;
 
 pub struct MapGenState {
     info: StateInfo,
@@ -48,6 +50,11 @@ impl MapGenState {
         self.ui_context.add_element(
             "lbl_mapSeed",
             Box::new(ui::Label::new(String::from("..."))),
+        );
+
+        self.ui_context.add_element(
+            "map_overview",
+            Box::new(MapUI::new()),
         );
 
         self.has_initialized_ui = true;
@@ -85,7 +92,6 @@ impl event::EventHandler for MapGenState {
         if self.info.is_ui_dirty() && self.has_initialized_ui {
             let screen = graphics::get_screen_coordinates(ctx);
 
-            let mut seed_label_width: f32 = 0.0;
             let mut map_seed = 0i32;
 
             if let Ok(&StoredValue::Integral { value: seed }) = self.info.get_value("map_seed") {
@@ -101,6 +107,7 @@ impl event::EventHandler for MapGenState {
                 );
             }
 
+            let mut seed_label_width: f32 = 0.0;
             self.ui_context.modify_element(
                 "lbl_mapSeed",
                 |lbl: &mut ui::Label| {
@@ -122,7 +129,17 @@ impl event::EventHandler for MapGenState {
                     btn.set_position(
                         2.0 * SEED_ELEMENT_PADDING_HORIZ + seed_label_width + width / 2.0,
                         SEED_ELEMENT_PADDING_TOP + height / 2.0,
-                    )
+                    );
+                },
+            );
+
+            let map = &self.map;
+            self.ui_context.modify_element(
+                "map_overview",
+                |map_view: &mut MapUI| {
+                    map_view.update(map);
+                    map_view.set_position(2.0 * (screen.w / 3.0), MAP_VIEW_TOP_PAD);
+                    map_view.set_size(screen.w / 3.0, screen.w / 3.0);
                 },
             );
         }

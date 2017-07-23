@@ -16,7 +16,7 @@ pub struct Map {
     seed: i32,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 pub enum BiomeType {
     Arid,
     Grassland,
@@ -35,6 +35,7 @@ pub struct Region {
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum TileType {
+    #[serde(skip_serializing)]
     Air,
     Grass,
     Sand,
@@ -46,6 +47,7 @@ pub enum TileType {
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Tile {
     pub solid: bool,
+    #[serde(default = "TileType::Air")]
     pub tile_type: TileType,
 }
 
@@ -85,6 +87,14 @@ impl Map {
         }
     }
 
+    pub fn get_width(&self) -> u32 {
+        self.width
+    }
+
+    pub fn get_height(&self) -> u32 {
+        self.height
+    }
+
     pub fn save(&mut self) {
         let path = format!("maps/{}/", self.id);
         let _ = DirBuilder::new()
@@ -118,6 +128,13 @@ impl Map {
             let r = &mut self.regions[x as usize][y as usize];
             r.load_tiles(path.clone());
             return r;
+        }
+        panic!("Region offset at ({},{}) is outside of map bounds!", x, y);
+    }
+
+    pub fn get_biome_at_offset(&self, x: u32, y: u32) -> BiomeType {
+        if x < self.width && y < self.height {
+            return self.regions[x as usize][y as usize].biome.clone();
         }
         panic!("Region offset at ({},{}) is outside of map bounds!", x, y);
     }

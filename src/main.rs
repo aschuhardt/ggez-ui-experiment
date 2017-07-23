@@ -164,7 +164,7 @@ pub fn main() {
         window_height: 768,
         window_width: 1024,
         vsync: true,
-        resizable: true,
+        resizable: false,
     };
 
     // load window context
