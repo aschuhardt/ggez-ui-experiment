@@ -1,5 +1,6 @@
 pub mod map;
 mod map_ui;
+mod regions_generator;
 
 use std::time::Duration;
 
@@ -73,7 +74,7 @@ impl MapGenState {
     fn set_random_seed(state: &mut StateInfo) {
         state.set_value(
             "map_seed",
-            StoredValue::Integral { value: rand::thread_rng().gen::<i32>() },
+            StoredValue::Unsigned { value: rand::thread_rng().gen::<usize>() },
         );
         state.set_value("gen_map", StoredValue::Boolean { value: true });
         state.refresh_ui();
@@ -101,9 +102,9 @@ impl event::EventHandler for MapGenState {
         if self.info.is_ui_dirty() && self.has_initialized_ui {
             let screen = graphics::get_screen_coordinates(ctx);
 
-            let mut map_seed = 0i32;
+            let mut map_seed = 0usize;
 
-            if let Ok(&StoredValue::Integral { value: seed }) = self.info.get_value("map_seed") {
+            if let Ok(&StoredValue::Unsigned { value: seed }) = self.info.get_value("map_seed") {
                 map_seed = seed.clone();
             }
 

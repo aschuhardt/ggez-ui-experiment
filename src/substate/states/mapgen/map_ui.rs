@@ -9,6 +9,13 @@ use substate::states::mapgen::map::{self, BiomeType};
 pub const DESCRIPTION_KEY: &'static str = "map_desc";
 const REGION_OUTLINE_WIDTH: f32 = 3.0;
 
+lazy_static! {
+    static ref REGION_COLOR_ARID: Color = Color::from((128, 98, 69));
+    static ref REGION_COLOR_GRASSLAND: Color = Color::from((64, 106, 57));
+    static ref REGION_COLOR_OCEAN: Color = Color::from((50, 61, 86));
+    static ref REGION_COLOR_ROCKY: Color = Color::from((26, 27, 31));
+}
+
 pub struct MapUI {
     x: f32,
     y: f32,
@@ -72,16 +79,16 @@ impl ui::UIElement for MapUI {
         for x in 0..data_width {
             for y in 0..data_height {
                 let biome_color: Color = match self.biome_data[x][y] {
-                    BiomeType::Arid => Color::from((128, 98, 69)),
-                    BiomeType::Grassland => Color::from((64, 106, 57)),
-                    BiomeType::Ocean => Color::from((50, 61, 86)),
-                    BiomeType::Rocky => Color::from((26, 27, 31)),
+                    BiomeType::Arid => *REGION_COLOR_ARID,
+                    BiomeType::Grassland => *REGION_COLOR_GRASSLAND,
+                    BiomeType::Ocean => *REGION_COLOR_OCEAN,
+                    BiomeType::Rocky => *REGION_COLOR_ROCKY,
                 };
 
                 let rect_x = self.x + (x as f32 * rect_width);
                 let rect_y = self.y + (y as f32 * rect_height);
 
-                graphics::set_color(ctx, biome_color);
+                graphics::set_color(ctx, biome_color).unwrap();
                 graphics::rectangle(
                     ctx,
                     DrawMode::Fill,
@@ -91,7 +98,7 @@ impl ui::UIElement for MapUI {
                         w: rect_width,
                         h: rect_height,
                     },
-                );
+                ).unwrap();
             }
         }
 
@@ -112,7 +119,7 @@ impl ui::UIElement for MapUI {
                     && self.selection_pos.0 < rect_x + (rect_width / 2.0)
                     && self.selection_pos.1 > rect_y - (rect_height / 2.0) 
                     && self.selection_pos.1 < rect_y + (rect_height / 2.0) {
-                    graphics::set_color(ctx, Color::from((255, 0, 0)));
+                    graphics::set_color(ctx, Color::from((255, 0, 0))).unwrap();
                     graphics::set_line_width(ctx, REGION_OUTLINE_WIDTH);
                     graphics::rectangle(
                         ctx,
@@ -123,7 +130,7 @@ impl ui::UIElement for MapUI {
                             w: rect_width,
                             h: rect_height,
                         },
-                    );
+                    ).unwrap();
                 }
             }
         }

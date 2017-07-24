@@ -13,3 +13,5 @@ uuid = { version = "*", features = ["serde", "v4"] }
 serde = "^1.0"
 serde_derive = "1.0.8"
 bincode = "0.8.0"
+noise = "0.4.1"
+euclid = "0.15.1"

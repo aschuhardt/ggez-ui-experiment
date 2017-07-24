@@ -3,8 +3,16 @@ use std::fs::{DirBuilder, File};
 
 use uuid::Uuid;
 use bincode::{serialize, deserialize, Infinite};
+use super::regions_generator::RegionsGenerator;
 
 const REGION_DEPTH: u32 = 16;
+
+lazy_static! {
+    static ref REGION_NAME_ARID: String = String::from("Arid");
+    static ref REGION_NAME_GRASSLAND: String = String::from("Grassland");
+    static ref REGION_NAME_OCEAN: String = String::from("Oceanic");
+    static ref REGION_NAME_ROCKY: String = String::from("Rocky");
+}
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Map {
@@ -13,10 +21,10 @@ pub struct Map {
     height: u32,
     region_size: u32,
     regions: Vec<Vec<Region>>,
-    seed: i32,
+    seed: usize,
 }
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Debug, Eq, Hash)]
 pub enum BiomeType {
     Arid,
     Grassland,
@@ -49,12 +57,12 @@ struct Tile {
     pub tile_type: TileType,
 }
 
-pub fn get_biome_name(biome: &BiomeType) -> String {
+pub fn get_biome_name(biome: &BiomeType) -> &String {
     match biome {
-        &BiomeType::Arid => String::from("Arid"),
-        &BiomeType::Grassland => String::from("Grassland"),
-        &BiomeType::Ocean => String::from("Oceanic"),
-        &BiomeType::Rocky => String::from("Rocky"),        
+        &BiomeType::Arid => &*REGION_NAME_ARID,
+        &BiomeType::Grassland => &*REGION_NAME_GRASSLAND,
+        &BiomeType::Ocean => &*REGION_NAME_OCEAN,
+        &BiomeType::Rocky => &*REGION_NAME_ROCKY,
     }
 }
 
@@ -66,11 +74,11 @@ impl Map {
             height: height,
             region_size: region_size,
             regions: Vec::<Vec<Region>>::new(),
-            seed: -1,
+            seed: 0,
         }
     }
 
-    pub fn set_seed(&mut self, seed: i32) {
+    pub fn set_seed(&mut self, seed: usize) {
         self.seed = seed;
     }
 
@@ -78,19 +86,18 @@ impl Map {
     where
         F: Fn(i32),
     {
+        self.regions.clear();
+        
+        let region_gen = RegionsGenerator::new(self.seed);
         let region_count = (self.width * self.height) as f32;
         let mut current_index = 0;
 
         for x in 0..self.width {
             let mut column = Vec::<Region>::new();
             for y in 0..self.height {
-                if x % 3 == 0 || y % 2 == 0 {
-                    column.push(Region::new(self.region_size, BiomeType::Arid));
-                } else if x % 4 == 0 {
-                    column.push(Region::new(self.region_size, BiomeType::Grassland));
-                } else {
-                    column.push(Region::new(self.region_size, BiomeType::Rocky));
-                }
+                let biome = region_gen.get_biome_at_point(x, y);
+
+                column.push(Region::new(self.region_size, biome));
 
                 current_index += 1;
                 let progress = ((current_index as f32 / region_count) as i32) * 100;

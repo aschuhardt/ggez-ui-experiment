@@ -4,7 +4,7 @@ use substate::Status;
 
 pub enum StoredValue {
     FloatingPoint { value: f32 },
-    Integral { value: i32 },
+    Unsigned { value: usize },
     Boolean { value: bool },
     Textual { value: String },
 }

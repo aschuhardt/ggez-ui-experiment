@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
@@ -10,6 +11,8 @@ extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate bincode;
+extern crate noise;
+extern crate euclid;
 
 mod substate;
 mod utility;
