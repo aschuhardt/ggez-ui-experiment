@@ -18,9 +18,10 @@ use self::map_ui::MapUI;
 const SEED_ELEMENT_PADDING_TOP: f32 = 8.0;
 const SEED_ELEMENT_PADDING_HORIZ: f32 = 10.0;
 const MAP_VIEW_TOP_PAD: f32 = 16.0;
+const MAP_VIEW_RIGHT_PAD: f32 = 16.0;
 const MAP_LABEL_TOP_PAD: f32 = 16.0;
-const MAP_DEFAULT_WIDTH: u32 = 16;
-const MAP_DEFAULT_HEIGHT: u32 = 16;
+const MAP_DEFAULT_WIDTH: u32 = 24;
+const MAP_DEFAULT_HEIGHT: u32 = 24;
 
 pub struct MapGenState {
     info: StateInfo,
@@ -155,7 +156,7 @@ impl event::EventHandler for MapGenState {
             if let Ok(&StoredValue::Textual { value: ref desc }) = self.info.get_value(map_ui::DESCRIPTION_KEY) {
                 map_desc = desc.clone();
             }
-
+            
             self.ui_context.modify_element(
                 "lbl_mapBiome",
                 |lbl: &mut ui::Label| {

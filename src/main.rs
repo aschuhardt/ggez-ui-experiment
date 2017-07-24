@@ -29,6 +29,7 @@ struct MainState {
     current_substate: Box<SubState>,
     debug: bool,
     paused: bool,
+    mouse_position: (i32, i32),
 }
 
 impl MainState {
@@ -37,6 +38,7 @@ impl MainState {
             current_substate: mapper::from_id("menu").unwrap(),
             debug: cfg!(debug_assertions),
             paused: false,
+            mouse_position: (0, 0),
         };
         Ok(s)
     }
@@ -74,11 +76,12 @@ impl event::EventHandler for MainState {
         if !self.paused {
             graphics::clear(ctx);
 
+            self.current_substate.draw(ctx).unwrap();
+
             if self.debug {
                 utility::debug::draw_debug_information(ctx);
+                utility::debug::draw_mouse_position(self.mouse_position.0, self.mouse_position.1, ctx)
             }
-
-            self.current_substate.draw(ctx).unwrap();
 
             graphics::present(ctx);
         }
@@ -95,6 +98,10 @@ impl event::EventHandler for MainState {
     }
 
     fn mouse_motion_event(&mut self, state: MouseState, x: i32, y: i32, xrel: i32, yrel: i32) {
+        if self.debug {
+            self.mouse_position = (x, y);
+        }
+
         self.current_substate.mouse_motion_event(
             state,
             x,
@@ -163,7 +170,7 @@ pub fn main() {
         window_icon: String::from(""),
         window_height: 768,
         window_width: 1024,
-        vsync: true,
+        vsync: false,
         resizable: false,
     };
 

@@ -105,18 +105,6 @@ impl ui::UIElement for MapUI {
                     && self.mouse_pos.0 < rect_x + (rect_width / 2.0)
                     && self.mouse_pos.1 > rect_y - (rect_height / 2.0) 
                     && self.mouse_pos.1 < rect_y + (rect_height / 2.0) {
-                    graphics::set_color(ctx, graphics::BLACK);
-                    graphics::set_line_width(ctx, REGION_OUTLINE_WIDTH);
-                    graphics::rectangle(
-                        ctx,
-                        DrawMode::Line,
-                        Rect {
-                            x: rect_x,
-                            y: rect_y,
-                            w: rect_width,
-                            h: rect_height,
-                        },
-                    );
                     self.description = format!("({}, {}): {}", x, y, map::get_biome_name(&self.biome_data[x][y]));
                 }
 
