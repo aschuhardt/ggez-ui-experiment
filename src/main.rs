@@ -61,7 +61,7 @@ impl event::EventHandler for MainState {
             match status {
                 Status::Transition { id } => {
                     self.transition_state(id);
-                },
+                }
                 Status::Quit => {
                     ctx.quit().unwrap();
                 }
@@ -83,7 +83,11 @@ impl event::EventHandler for MainState {
 
             if self.debug {
                 utility::debug::draw_debug_information(ctx);
-                utility::debug::draw_mouse_position(self.mouse_position.0, self.mouse_position.1, ctx)
+                utility::debug::draw_mouse_position(
+                    self.mouse_position.0,
+                    self.mouse_position.1,
+                    ctx,
+                )
             }
 
             graphics::present(ctx);

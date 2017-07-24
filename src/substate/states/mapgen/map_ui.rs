@@ -108,17 +108,24 @@ impl ui::UIElement for MapUI {
                 let rect_x = self.x + (x as f32 * rect_width);
                 let rect_y = self.y + (y as f32 * rect_height);
 
-                if self.mouse_pos.0 > rect_x - (rect_width / 2.0) 
-                    && self.mouse_pos.0 < rect_x + (rect_width / 2.0)
-                    && self.mouse_pos.1 > rect_y - (rect_height / 2.0) 
-                    && self.mouse_pos.1 < rect_y + (rect_height / 2.0) {
-                    self.description = format!("({}, {}): {}", x, y, map::get_biome_name(&self.biome_data[x][y]));
+                if self.mouse_pos.0 > rect_x - (rect_width / 2.0) &&
+                    self.mouse_pos.0 < rect_x + (rect_width / 2.0) &&
+                    self.mouse_pos.1 > rect_y - (rect_height / 2.0) &&
+                    self.mouse_pos.1 < rect_y + (rect_height / 2.0)
+                {
+                    self.description = format!(
+                        "({}, {}): {}",
+                        x,
+                        y,
+                        map::get_biome_name(&self.biome_data[x][y])
+                    );
                 }
 
-                if self.selection_pos.0 > rect_x - (rect_width / 2.0) 
-                    && self.selection_pos.0 < rect_x + (rect_width / 2.0)
-                    && self.selection_pos.1 > rect_y - (rect_height / 2.0) 
-                    && self.selection_pos.1 < rect_y + (rect_height / 2.0) {
+                if self.selection_pos.0 > rect_x - (rect_width / 2.0) &&
+                    self.selection_pos.0 < rect_x + (rect_width / 2.0) &&
+                    self.selection_pos.1 > rect_y - (rect_height / 2.0) &&
+                    self.selection_pos.1 < rect_y + (rect_height / 2.0)
+                {
                     graphics::set_color(ctx, Color::from((255, 0, 0))).unwrap();
                     graphics::set_line_width(ctx, REGION_OUTLINE_WIDTH);
                     graphics::rectangle(
@@ -144,8 +151,7 @@ impl ui::UIElement for MapUI {
         let mx = mouse_x as f32;
         let my = mouse_y as f32;
 
-        if mx > self.x && mx < self.x + self.width
-            && my > self.y && my < self.y + self.height {
+        if mx > self.x && mx < self.x + self.width && my > self.y && my < self.y + self.height {
             self.selection_pos = (mx, my);
             info.set_value(
                 DESCRIPTION_KEY,

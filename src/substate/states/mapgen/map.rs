@@ -87,7 +87,7 @@ impl Map {
         F: Fn(i32),
     {
         self.regions.clear();
-        
+
         let region_gen = RegionsGenerator::new(self.seed);
         let region_count = (self.width * self.height) as f32;
         let mut current_index = 0;

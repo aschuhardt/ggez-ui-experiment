@@ -21,8 +21,8 @@ const SEED_ELEMENT_PADDING_HORIZ: f32 = 10.0;
 const MAP_VIEW_TOP_PAD: f32 = 16.0;
 const MAP_VIEW_RIGHT_PAD: f32 = 16.0;
 const MAP_LABEL_TOP_PAD: f32 = 16.0;
-const MAP_DEFAULT_WIDTH: u32 = 24;
-const MAP_DEFAULT_HEIGHT: u32 = 24;
+const MAP_DEFAULT_WIDTH: u32 = 36;
+const MAP_DEFAULT_HEIGHT: u32 = 36;
 
 pub struct MapGenState {
     info: StateInfo,
@@ -130,7 +130,7 @@ impl event::EventHandler for MapGenState {
                     );
                 },
             );
-            
+
             self.ui_context.modify_element(
                 "btn_newSeed",
                 |btn: &mut ui::Button| {
@@ -148,22 +148,27 @@ impl event::EventHandler for MapGenState {
                 "map_overview",
                 |map_view: &mut MapUI| {
                     map_view.update(map);
-                    map_view.set_position(2.0 * (screen.w / 3.0), MAP_VIEW_TOP_PAD);
+                    map_view.set_position(
+                        (2.0 * (screen.w / 3.0)) - MAP_VIEW_RIGHT_PAD,
+                        MAP_VIEW_TOP_PAD,
+                    );
                     map_view.set_size(screen.w / 3.0, screen.w / 3.0);
                 },
             );
 
             let mut map_desc = String::from("..");
-            if let Ok(&StoredValue::Textual { value: ref desc }) = self.info.get_value(map_ui::DESCRIPTION_KEY) {
+            if let Ok(&StoredValue::Textual { value: ref desc }) =
+                self.info.get_value(map_ui::DESCRIPTION_KEY)
+            {
                 map_desc = desc.clone();
             }
-            
+
             self.ui_context.modify_element(
                 "lbl_mapBiome",
                 |lbl: &mut ui::Label| {
                     lbl.set_text(map_desc.clone(), ctx);
                     lbl.set_position(
-                        2.5 * (screen.w / 3.0),
+                        (2.5 * (screen.w / 3.0)) - MAP_VIEW_RIGHT_PAD,
                         MAP_VIEW_TOP_PAD + MAP_LABEL_TOP_PAD + screen.w / 3.0,
                     );
                 },

@@ -10,10 +10,10 @@ const SEED_MOD_GRASSLAND: usize = 4_288_859_287;
 const SEED_MOD_OCEAN: usize = 1_880_045_689;
 const SEED_MOD_ROCKY: usize = 688_937_993;
 const NOISE_SCALE: f32 = 0.1;
-const SMOOTHNESS: f32 = 1.570796;
-const SEA_LEVEL: f32 = 0.0;
-const VALLEY_MAX_STEEPNESS: f32 = 0.1;
-const GRASSLAND_COVERAGE: f32 = 0.5;
+const SMOOTHNESS: f32 = 8.0;
+const SEA_LEVEL: f32 = 0.1;
+const VALLEY_MAX_STEEPNESS: f32 = 0.07;
+const GRASSLAND_COVERAGE: f32 = 0.2;
 
 pub struct RegionsGenerator {
     seed: usize,
@@ -43,7 +43,7 @@ impl RegionsGenerator {
         let local_avg = self.get_noise_neighbor_average(&self.terrain_noise, x, y);
         let height: f32 = self.terrain_noise.get([x, y]);
         let steepness = (height - local_avg).abs();
-        
+
         if height <= SEA_LEVEL {
             BiomeType::Ocean
         } else {
@@ -64,6 +64,7 @@ impl RegionsGenerator {
     }
 
     fn get_noise_neighbor_average(&self, noise: &Fbm<f32>, x: f32, y: f32) -> f32 {
+        let smoothing = (2.0 * PI) / SMOOTHNESS;
         let mut angle = 0.0;
         let mut total = 0.0;
         while angle <= 2.0 * PI {
@@ -71,18 +72,15 @@ impl RegionsGenerator {
             let ny = y + (NOISE_SCALE * angle.sin());
             let val = noise.get([nx, ny]);
             total += val;
-            angle += SMOOTHNESS * 1.0;
+            angle += smoothing;
         }
-        total / ((2.0 * PI) / (SMOOTHNESS * 1.0))
+        total / ((2.0 * PI) / smoothing)
     }
 
     fn register_biome_type(seed: &usize, map: &mut HashMap<BiomeType, Fbm<f32>>, biome: BiomeType) {
         map.insert(
-            biome.clone(), 
-            Fbm::<f32>::new()
-                .set_seed(
-                    seed % RegionsGenerator::get_biome_seed(biome)
-                )
+            biome.clone(),
+            Fbm::<f32>::new().set_seed(seed % RegionsGenerator::get_biome_seed(biome)),
         );
     }
 
@@ -95,5 +93,3 @@ impl RegionsGenerator {
         }
     }
 }
-
-
